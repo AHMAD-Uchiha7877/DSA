@@ -1,0 +1,331 @@
+//...................1
+
+bool isValid(string s)
+{
+    stack<char> p_stack;
+
+    for (int i = 0; i < s.length(); i++)
+    {
+        char c = s[i];
+
+        if (c == '(')
+        {
+            p_stack.push(')');
+        }
+        else if (c == '{')
+        {
+            p_stack.push('}');
+        }
+        else if (c == '[')
+        {
+            p_stack.push(']');
+        }
+
+        else if (p_stack.empty() || p_stack.top() != c)
+        {
+            return false;
+        }
+
+        if (c == ')' || c == '}' || c == ']')
+        {
+            p_stack.pop();
+        }
+    }
+
+    return p_stack.empty();
+}
+///////////////////////////////////////////
+
+//........................................2
+
+class MinStack
+{
+private:
+    stack<int> valStack;
+    stack<int> minStack;
+    int minValue = 0;
+
+public:
+    MinStack()
+    {
+    }
+    void push(int val)
+    {
+        if (valStack.empty())
+        {
+            val = minValue;
+        }
+        valStack.push(val);
+        minValue = min(val, minValue);
+        minStack.push(minValue);
+    }
+    void pop()
+    {
+        minStack.pop();
+        valStack.pop();
+        if (!minStack.empty())
+        {
+            minValue = minStack.top();
+        }
+    }
+
+    int top()
+    {
+        return valStack.top();
+    }
+
+    int getMin()
+    {
+        return minStack.top();
+    }
+};
+////////////////////////////////////////
+
+//......................................3
+
+
+class Solution {
+public:
+    int trap(vector<int> &height) {
+
+        int n = height.size();
+        int lmax = height[0];
+        int rmax = height[n-1];
+        int lpos = 1;
+        int rpos = n-2;
+        int water = 0;
+
+        while(lpos <= rpos)
+        {
+            if(height[lpos] >= lmax)
+            {
+                lmax = height[lpos];
+                lpos++;
+            }
+            else if(height[rpos] >= rmax)
+            {
+                rmax = height[rpos];
+                rpos--; 
+            }
+
+            else if(lmax <= rmax && height[lpos] < lmax)
+            {
+                water += lmax - height[lpos];
+                lpos++; 
+            }
+            else{
+                water += rmax - height[rpos];
+                rpos--;
+            }
+        }
+        return water;
+    }
+};
+
+///////////////////////////////////////////////
+
+//...........................................4
+
+
+class Solution {
+    stack<string> stringStack; // A stack to store strings
+    stack<int> numStack; // A stack to store numbers (multipliers)
+
+public:
+    string decodeString(string s) {
+        string currentStr = ""; // Initialize an empty string to build the current substring
+        int currentNum = 0; // Initialize the current multiplier to 0
+
+        for (int i = 0; i < s.length(); i++) { 
+            char c = s[i]; // Get the current character from the input string
+
+            if (isdigit(c)) { // If the character is a digit
+                currentNum = currentNum * 10 + (c - '0'); // Build the multiplier (k)
+            } else if (c == '[') { // If the character is an opening bracket
+                numStack.push(currentNum); // Push the multiplier onto the number stack
+                currentNum = 0; // Reset the current multiplier
+                stringStack.push(currentStr); // Push the current substring onto the string stack
+                currentStr = ""; // Reset the current substring
+            } else if (c == ']') { // If the character is a closing bracket
+                int k = numStack.top(); // Get the multiplier (k) from the number stack
+                numStack.pop(); // Pop the multiplier from the number stack
+                string prevStr = stringStack.top(); // Get the previous substring from the string stack
+                stringStack.pop(); // Pop the previous substring from the string stack
+
+                for (int j = 0; j < k; j++) {
+                    prevStr += currentStr; // Repeat the current substring 'k' times and append to the previous substring
+                }
+
+                currentStr = prevStr; // Update the current substring with the combined result
+            } else {
+                currentStr += c; // If the character is a letter, append it to the current substring
+            }
+        }
+
+        return currentStr; // Return the final decoded string
+    }
+};
+
+
+//...................................................5
+
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int left = 0;
+        int right = height.size() - 1;
+        int maxArea = 0;
+
+        while (left < right) {
+            int currentArea = min(height[left], height[right]) * (right - left);
+            maxArea = max(maxArea, currentArea);
+
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return maxArea;
+    }
+};
+
+///////////////////////////////////////
+//.................................7
+class Solution {
+public:
+    int countStudents(vector<int>& students, vector<int>& sandwiches) {
+        stack<int> sandwichStack;  // Stack to represent sandwiches
+        queue<int> studentQueue;   // Queue to represent students
+
+        // Initialize the stack with sandwiches (in reverse order)
+        for (int i = sandwiches.size() - 1; i >= 0; i--) {
+            sandwichStack.push(sandwiches[i]);
+        }
+
+        // Initialize the queue with student preferences
+        for (int student : students) {
+            studentQueue.push(student);
+        }
+
+        int unableToEat = 0;
+
+        while (!studentQueue.empty()) {
+            int frontStudent = studentQueue.front();
+            int topSandwich = sandwichStack.top();
+
+            if (frontStudent == topSandwich) {
+                // If the student prefers the top sandwich, they take it
+                studentQueue.pop();
+                sandwichStack.pop();
+                unableToEat = 0; // Reset the count of students unable to eat
+            } else {
+                // If the student doesn't prefer the top sandwich, they go to the end of the queue
+                studentQueue.pop();
+                studentQueue.push(frontStudent);
+
+                // Increase the count of students unable to eat
+                unableToEat++;
+
+                // If all students have gone through without eating, break the loop
+                if (unableToEat == studentQueue.size()) {
+                    break;
+                }
+            }
+        }
+
+        return studentQueue.size(); // The remaining students in the queue are unable to eat
+    }
+};
+///////////////////////////////////
+..............................9
+    int maxSubarraySumCircular(vector<int>& nums) {
+        int Size = nums.size();
+        for(int i = 1; i < Size; i++){
+            nums[i] += nums[i-1];
+        }
+
+        // case1 : maxSum without circular array
+        int minTillNow = nums[0] > 0 ? 0 : nums[0];
+        int max1 = nums[0];
+        for(int i = 1; i < Size; i++){
+            max1 = max(max1, (nums[i] - minTillNow));
+            max1 = max(max1, nums[i]-nums[i-1]); // if current number itself is maximum
+            minTillNow = nums[i] < minTillNow ? nums[i] : minTillNow;
+        }
+
+        // case2 : maxSum considering sub array from [i+1 to n] + [0 to maxSumIndex]
+        int maxFromZero = nums[0];
+        int max2 = nums[Size-1];
+        int sum_i_to_n = 0;
+        for(int i = 0; i < Size; i++){
+            maxFromZero = max(nums[i], maxFromZero);
+            sum_i_to_n = nums[Size-1]-nums[i];
+            max2 = max(max2, maxFromZero + sum_i_to_n);
+        }
+
+        return max(max1, max2);
+    }
+};
+//..................................................................8
+
+class FrontMiddleBackQueue {
+public:
+    vector<int> v;
+    int cnt = 0;
+    FrontMiddleBackQueue() {
+        v.clear();
+
+    }
+    
+    void pushFront(int val) {
+        if(v.empty()) v.push_back(val);
+        else
+        v.insert(v.begin(),val);
+        cnt++;
+    }
+    
+    void pushMiddle(int val) {
+        v.insert(v.begin()+cnt/2,val);
+        cnt++;
+    }
+    
+    void pushBack(int val) {
+        v.push_back(val);
+        cnt++;
+    }
+    
+    int popFront() {
+        if(v.empty()) return -1;
+        int t = v[0];
+        v.erase(v.begin());
+        cnt--;
+        return t;
+    }
+    
+    int popMiddle() {
+        if(v.empty()) return -1;
+        int mid = cnt/2;
+        if(cnt % 2 == 0){
+         mid = v[cnt/2-1];
+        v.erase(v.begin()+cnt/2-1);
+        }
+        else{
+             mid = v[cnt/2];
+        v.erase(v.begin()+cnt/2);
+        }
+        cnt--;
+        return mid;
+    }
+    
+    int popBack() {
+        if(v.empty()) return -1;
+        int b = v[cnt-1];
+        v.pop_back();
+        cnt--;
+        return b;
+    }
+};
+
+
